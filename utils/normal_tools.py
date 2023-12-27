@@ -15,20 +15,52 @@ def get_format_beijing_time():
     return bj_time
 
 
-def get_folders(project_folder: str, time_now: str):
+def get_folders(project_folder: str, time_now: str, args):
     """
-    返回 background、instance、instance_masks、composite/(时间戳）、composite_mask/(时间戳）文件夹，同时自动创建输出文件夹
+    返回 background、instance(基于args.ins_category的list)、instance_masks(基于args.ins_category的list)、
+    composite/(时间戳）、composite_mask/(时间戳）文件夹，同时自动创建输出文件夹
     :param project_folder: 整个图片项目的最外层文件夹
     :param time_now: 时间戳（字符串）
-    :return:五个字符串，分别为 background、instance、instance_masks、composite/(时间戳）、composite_mask/(时间戳）文件夹
+    :param args: 参数解析器
+    :return:分别为 background(str)、instance(list)、instance_masks(list)、composite/(时间戳）(str)、
+            composite_mask/(时间戳）(str) 文件夹路径
     """
     bg_folder = os.path.join(project_folder, 'backgrounds')
-    ins_folder = os.path.join(project_folder, 'instances', 'images')
-    ins_mask_folder = os.path.join(project_folder, 'instances', 'masks')
+    ins_folder_list = [os.path.join(project_folder, 'instances', class_name, 'images')
+                       for class_name in args.ins_category]
+    ins_mask_folder_list = [os.path.join(project_folder, 'instances', class_name, 'masks')
+                            for class_name in args.ins_category]
     composite_save_folder = os.path.join(project_folder, 'output', 'composites', time_now)
     comp_mask_save_folder = os.path.join(project_folder, 'output', 'masks', time_now)
 
     os.makedirs(composite_save_folder, exist_ok=True)
     os.makedirs(comp_mask_save_folder, exist_ok=True)
 
-    return bg_folder, ins_folder, ins_mask_folder, composite_save_folder, comp_mask_save_folder
+    return bg_folder, ins_folder_list, ins_mask_folder_list, composite_save_folder, comp_mask_save_folder
+
+
+def get_ins_mask_dir(ins_path):
+    ins_name = os.path.basename(ins_path)
+    mask_folder = os.path.dirname(os.path.dirname(ins_path))
+    ins_pref, ins_surf = os.path.splitext(os.path.join(mask_folder, ins_name))
+
+    if '_mask' in ins_pref:
+        alt_pref = ins_pref.replace('_mask', '')
+    else:
+        if 'mask' in ins_pref:
+            alt_pref = ins_pref.replace('mask', '')
+        else:
+            alt_pref = ins_pref
+
+    possible_file_surfix = ['.jpg', '.jpeg', '.png']
+    possible_mask_surfix = ['', 'mask', '_mask']
+    for mask_surfix in possible_mask_surfix:
+        for surfix in possible_file_surfix:
+            possible_file_path = os.path.join(mask_folder, alt_pref + mask_surfix, surfix)
+            if os.path.exists(possible_file_path):
+                return possible_file_path
+
+    return None
+
+
+
