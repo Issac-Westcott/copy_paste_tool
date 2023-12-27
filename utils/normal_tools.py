@@ -40,7 +40,7 @@ def get_folders(project_folder: str, time_now: str, ins_category: list):
     os.makedirs(comp_mask_folder, exist_ok=True)
     os.makedirs(composite_label_folder, exist_ok=True)
 
-    return bg_folder, ins_folder_list, ins_mask_folder_list, composite_save_folder, comp_mask_folder
+    return bg_folder, ins_folder_list, ins_mask_folder_list, composite_save_folder, comp_mask_folder, composite_label_folder
 
 
 def get_ins_mask_dir(ins_path):

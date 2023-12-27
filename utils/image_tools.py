@@ -111,7 +111,7 @@ def find_non_overlapping_position(ins_img_size, bg_img_size, existing_bounding_b
         ]
 
         # 检查是否与任何现存bbox重叠
-        overlap = any(is_overlap(new_box, existing_bounding_boxes[category]) for category in existing_bounding_boxes)
+        overlap = any(is_overlap(new_box, existing_bounding_boxes[category]) for category in existing_bounding_boxes.keys())
 
         if not overlap:
             return x, y

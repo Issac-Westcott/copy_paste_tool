@@ -7,6 +7,7 @@ import json
 from utils.normal_tools import *
 from utils.image_tools import *
 from PIL import Image
+import warnings
 
 
 def get_parser():
@@ -115,12 +116,13 @@ if __name__ == '__main__':
             bg_img = Image.open(bg_path)
             ins_num_per_bg = random.randint(args.min_num_ins_per_bg, args.max_num_ins_per_bg)
             selected_ins_path_list = get_some_instances(ins_path_list, ins_num_per_bg)
-            bg_data_dict = bg_bbox_dict = new_ins_data_dict = {}
+            bg_data_dict  = new_ins_data_dict = {}
             final_mask_img = Image.new('RGB', (bg_img.size[0], bg_img.size[1]), (0, 0, 0))
             if original_data:
                 for one_dict in original_data:  # one_dict：每张图对应的字典，内含img_name、instances、exist_category三个key
                     if one_dict['img_name'] == os.path.basename(bg_path):
                         bg_data_dict = one_dict
+            have_at_least_one_instance = False  # 防止极端情况下一个合适的坐标都没找到，而生成无目标图
             for ins_path in selected_ins_path_list:
                 ins_mask_path = get_ins_mask_dir(ins_path)
                 ins_img = Image.open(ins_path)
@@ -139,22 +141,25 @@ if __name__ == '__main__':
                 else:
                     bg_img, bbox = paste_img_or_mask(scaled_ins_img, bg_img, (x, y), scaled_ins_mask_img)
                     final_mask_img, _ = paste_img_or_mask(scaled_ins_mask_img, final_mask_img, (x, y))
-                ins_class_name = os.path.basename(os.path.dirname(ins_path))
-
-                if ins_class_name in bg_bbox_dict.keys():
-                    bg_data_dict['instances'][ins_class_name].append(bbox)
-                else:
-                    bg_data_dict['instances'][ins_class_name] = bbox
-
-            bg_img.save(os.path.join(composite_save_folder, f"{str(len(os.listdir(composite_save_folder)) + 1)}.png"))
-            final_mask_img.save(os.path.join(
-                comp_mask_save_folder,
-                f"{str(len(os.listdir(composite_save_folder)) + 1)}_mask.png")
-            )
-
-            with open(os.path.join(
-                    composite_label_folder,
-                    f"{str(len(os.listdir(composite_save_folder)) + 1)}.png"), 'w') as f:
-                json.dump(bg_data_dict, f, indent=4)
+                    ins_class_name = os.path.basename(os.path.dirname(os.path.dirname(ins_path)))
+                    if ins_class_name in bg_data_dict['instances'].keys():
+                        bg_data_dict['instances'][ins_class_name].append(bbox)
+                    else:
+                        bg_data_dict['instances'][ins_class_name] = [bbox]
+                        bg_data_dict['exist_category'].append(ins_class_name)
+                    
+                    have_at_least_one_instance = True
+            if have_at_least_one_instance:
+                bg_img.save(os.path.join(composite_save_folder, f"{str(len(os.listdir(composite_save_folder)) + 1)}.png"))
+                final_mask_img.save(os.path.join(
+                    comp_mask_save_folder,
+                    f"{str(len(os.listdir(composite_save_folder)) + 1)}_mask.png")
+                )
+                with open(os.path.join(
+                        composite_label_folder,
+                        f"{str(len(os.listdir(composite_save_folder)) + 1)}.json"), 'w') as f:
+                    json.dump(bg_data_dict, f, indent=4)
+            else:
+                warnings.warn(f"背景图 {os.path.basename(bg_path)} 中难以粘贴合适的instance，请留意（该图像未保存）", UserWarning)
 
     print("Finished")
