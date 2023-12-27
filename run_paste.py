@@ -13,7 +13,7 @@ def get_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("--project_folder", type=str, default="./example",
                         help="存放所有素材的文件夹路径。具体文件夹格式见主程序")
-    parser.add_argument("--ins_category", type=list, default=['boat', 'plane'],
+    parser.add_argument("--ins_category", type=list, default=['boat', 'airplane'],
                         help="需要粘贴的目标图像的类别。要求将不同类目标按类存放在instances文件夹下。详见主程序")
     parser.add_argument("--min_num_ins_per_bg", type=int, default=3, help="设定每张图片上放置的最小目标个数")
     parser.add_argument("--max_num_ins_per_bg", type=int, default=5, help="设定每张图片上放置的最大目标个数")
@@ -44,7 +44,7 @@ def get_parser():
     parser.add_argument("--classes_for_autoscaling", type=list, default=None,
                         help="一个列表，指定参考哪些类的大小作为自动缩放参照。"
                              "比如想要粘贴小汽车目标，应参考small-vehicle而非airport的大小")
-    parser.add_argument("--max_attempt_finding_xy", type=int, default=100000,
+    parser.add_argument("--max_attempt_finding_xy", type=int, default=1000000,
                         help="寻找不重叠的粘贴坐标时，最大允许的尝试次数。避免死循环。若找不到则跳过这个instance")
     args = parser.parse_args()
     return args
@@ -106,6 +106,7 @@ if __name__ == '__main__':
         raise NotImplementedError
     else:
         for bg_path in bg_path_list:
+            print(f"image: {bg_path}")
             bg_img = Image.open(bg_path)
             ins_num_per_bg = random.randint(args.min_num_ins_per_bg, args.max_num_ins_per_bg)
             selected_ins_path_list = get_some_instances(ins_path_list, ins_num_per_bg)
@@ -113,11 +114,12 @@ if __name__ == '__main__':
             for one_dict in original_data:
                 if one_dict['img_name'] == os.path.basename(bg_path):
                     bg_data_dict = one_dict
+                    bg_bbox_dict = bg_data_dict['instances']
             for ins_path in selected_ins_path_list:
                 ins_mask_path = get_ins_mask_dir(ins_path)
                 ins_img = Image.open(ins_path)
                 ins_mask_img = Image.open(ins_mask_path) if ins_mask_path else None
                 scaled_ins_img, scaled_ins_mask_img = get_scaled_image(
                     ins_img, ins_mask_img, bg_img, args, bg_data_dict)
-                x, y = find_non_overlapping_position(scaled_ins_img.size, bg_img.size, )
+                x, y = find_non_overlapping_position(scaled_ins_img.size, bg_img.size, bg_bbox_dict, args.max_attempt_finding_xy)
     print("Finished")

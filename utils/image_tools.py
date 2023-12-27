@@ -33,9 +33,11 @@ def get_scaled_image(ins_img, mask_img, bg_img, args, bg_data_dict: dict = None)
     """
     if (not args.manual_scaling) and bg_data_dict:
         if not args.classes_for_autoscaling:
-            args.classes_for_autoscaling = bg_data_dict["exist_category"]
+            specified_classes = bg_data_dict["exist_category"]
+        else:
+            specified_classes = args.classes_for_autoscaling
         specified_boxes_dict = {category: bg_data_dict["instances"][category]
-                                for category in args.classes_for_autoscaling}
+                                for category in specified_classes}
         average_width, average_height = calculate_average_size(specified_boxes_dict)
 
         # Calculate the scaling factor based on the average size
@@ -105,6 +107,6 @@ def get_some_instances(instance_img_path_list, img_num) -> list:
         img_num = len(instance_img_path_list)
     random_ins_names = random.sample(instance_img_path_list, img_num)
     for ins_name in random_ins_names:
-        ins_list.append(instance_img_path_list)
+        ins_list.append(ins_name)
 
     return ins_list
