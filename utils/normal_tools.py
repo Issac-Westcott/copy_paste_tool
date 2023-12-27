@@ -41,8 +41,9 @@ def get_folders(project_folder: str, time_now: str, args):
 
 def get_ins_mask_dir(ins_path):
     ins_name = os.path.basename(ins_path)
-    mask_folder = os.path.dirname(os.path.dirname(ins_path))
-    ins_pref, ins_surf = os.path.splitext(os.path.join(mask_folder, ins_name))
+    mask_folder = os.path.join(os.path.dirname(os.path.dirname(ins_path)), 'masks')
+    ins_pref, ins_surf = os.path.splitext(os.path.basename(os.path.join(mask_folder, ins_name)))
+    print(ins_pref)
 
     if '_mask' in ins_pref:
         alt_pref = ins_pref.replace('_mask', '')
@@ -56,7 +57,7 @@ def get_ins_mask_dir(ins_path):
     possible_mask_surfix = ['', 'mask', '_mask']
     for mask_surfix in possible_mask_surfix:
         for surfix in possible_file_surfix:
-            possible_file_path = os.path.join(mask_folder, alt_pref + mask_surfix, surfix)
+            possible_file_path = os.path.join(mask_folder, alt_pref + mask_surfix + surfix)
             if os.path.exists(possible_file_path):
                 return possible_file_path
 

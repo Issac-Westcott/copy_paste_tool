@@ -106,7 +106,6 @@ if __name__ == '__main__':
         raise NotImplementedError
     else:
         for bg_path in bg_path_list:
-            print(f"image: {bg_path}")
             bg_img = Image.open(bg_path)
             ins_num_per_bg = random.randint(args.min_num_ins_per_bg, args.max_num_ins_per_bg)
             selected_ins_path_list = get_some_instances(ins_path_list, ins_num_per_bg)
@@ -122,4 +121,7 @@ if __name__ == '__main__':
                 scaled_ins_img, scaled_ins_mask_img = get_scaled_image(
                     ins_img, ins_mask_img, bg_img, args, bg_data_dict)
                 x, y = find_non_overlapping_position(scaled_ins_img.size, bg_img.size, bg_bbox_dict, args.max_attempt_finding_xy)
+                scaled_ins_img.save(os.path.join(composite_save_folder, 'example.jpg'))
+                if scaled_ins_mask_img:
+                    scaled_ins_mask_img.save(os.path.join(comp_mask_save_folder, 'example_mask.jpg'))
     print("Finished")
