@@ -81,7 +81,8 @@ if __name__ == '__main__':
 
     # 目标图片文件名要和相应的mask文件名有对应关系，如instance图片文件名“P008.png”，
     # 对应mask图片命名需要同样是“P008.png”，或“P008_mask.png”
-    bg_folder, ins_folder_list, ins_mask_folder_list, composite_save_folder, comp_mask_save_folder = get_folders(
+    (bg_folder, ins_folder_list, ins_mask_folder_list,
+     composite_save_folder, comp_mask_save_folder, composite_label_folder) = get_folders(
         args.project_folder,
         time_now,
         args.ins_category
@@ -102,7 +103,7 @@ if __name__ == '__main__':
     original_data = []
     if os.path.exists(args.bg_json_path):
         with open(args.bg_json_path, 'r') as f:
-            original_data = json.load(f)
+            original_data = json.load(f)  # 背景图片对应json里的原始数据
         assert original_data
     # 开始合成
     used_bg = used_ins = 0
@@ -117,10 +118,9 @@ if __name__ == '__main__':
             bg_data_dict = bg_bbox_dict = new_ins_data_dict = {}
             final_mask_img = Image.new('RGB', (bg_img.size[0], bg_img.size[1]), (0, 0, 0))
             if original_data:
-                for one_dict in original_data:
+                for one_dict in original_data:  # one_dict：每张图对应的字典，内含img_name、instances、exist_category三个key
                     if one_dict['img_name'] == os.path.basename(bg_path):
                         bg_data_dict = one_dict
-                        bg_bbox_dict = bg_data_dict['instances']
             for ins_path in selected_ins_path_list:
                 ins_mask_path = get_ins_mask_dir(ins_path)
                 ins_img = Image.open(ins_path)
@@ -128,7 +128,7 @@ if __name__ == '__main__':
                 scaled_ins_img, scaled_ins_mask_img = get_scaled_image(
                     ins_img, ins_mask_img, bg_img, args, bg_data_dict)
                 x, y = find_non_overlapping_position(scaled_ins_img.size, bg_img.size,
-                                                     bg_bbox_dict, args.max_attempt_finding_xy)
+                                                     bg_data_dict['instances'], args.max_attempt_finding_xy)
                 # scaled_ins_img.save(os.path.join(composite_save_folder, 'example.jpg'))
                 # if scaled_ins_mask_img:
                 #     scaled_ins_mask_img.save(os.path.join(comp_mask_save_folder, 'example_mask.jpg'))
@@ -137,11 +137,24 @@ if __name__ == '__main__':
                 if x is None or y is None:
                     continue
                 else:
-                    bg_img = paste_img_or_mask(scaled_ins_img, bg_img, (x, y), scaled_ins_mask_img)
-                    final_mask_img = paste_img_or_mask(scaled_ins_mask_img, final_mask_img, (x, y))
+                    bg_img, bbox = paste_img_or_mask(scaled_ins_img, bg_img, (x, y), scaled_ins_mask_img)
+                    final_mask_img, _ = paste_img_or_mask(scaled_ins_mask_img, final_mask_img, (x, y))
+                ins_class_name = os.path.basename(os.path.dirname(ins_path))
+
+                if ins_class_name in bg_bbox_dict.keys():
+                    bg_data_dict['instances'][ins_class_name].append(bbox)
+                else:
+                    bg_data_dict['instances'][ins_class_name] = bbox
+
             bg_img.save(os.path.join(composite_save_folder, f"{str(len(os.listdir(composite_save_folder)) + 1)}.png"))
             final_mask_img.save(os.path.join(
                 comp_mask_save_folder,
                 f"{str(len(os.listdir(composite_save_folder)) + 1)}_mask.png")
             )
+
+            with open(os.path.join(
+                    composite_label_folder,
+                    f"{str(len(os.listdir(composite_save_folder)) + 1)}.png"), 'w') as f:
+                json.dump(bg_data_dict, f, indent=4)
+
     print("Finished")

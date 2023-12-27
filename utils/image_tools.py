@@ -138,12 +138,28 @@ def paste_img_or_mask(ins_img, bg_img, coord, mask_for_ins=None):
     :param bg_img: 需要粘贴的背景图。
     :param coord: (x,y)元组
     :param mask_for_ins: 如果没有，就做最简单的粘贴；如果不为None，就会根据mask粘贴目标
-    :return: 合成图像（PIL.Image)
+    :return: 合成图像（PIL.Image.Image), 以及instance的bounding box
     """
     if mask_for_ins:
         bg_img.paste(ins_img, coord, mask=mask_for_ins)
     else:
         bg_img.paste(ins_img, coord)
 
-    return bg_img
+    # 返回bbox
+    x, y = coord
+    new_width, new_height = ins_img.size
+
+    x1 = x
+    y1 = y
+
+    x2 = x + new_width
+    y2 = y
+
+    x3 = x + new_width
+    y3 = y + new_height
+
+    x4 = x
+    y4 = y + new_height
+
+    return bg_img, [x1, y1, x2, y2, x3, y3, x4, y4]
 
