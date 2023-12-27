@@ -32,8 +32,8 @@ def get_folders(project_folder: str, time_now: str, ins_category: list):
                        for class_name in ins_category]
     ins_mask_folder_list = [os.path.join(project_folder, 'instances', class_name, 'masks')
                             for class_name in ins_category]
-    composite_save_folder = os.path.join(project_folder, 'output', 'composites', time_now)
-    comp_mask_save_folder = os.path.join(project_folder, 'output', 'masks', time_now)
+    composite_save_folder = os.path.join(project_folder, 'output', time_now, 'composites')
+    comp_mask_save_folder = os.path.join(project_folder, 'output', time_now, 'masks')
 
     os.makedirs(composite_save_folder, exist_ok=True)
     os.makedirs(comp_mask_save_folder, exist_ok=True)
@@ -45,7 +45,6 @@ def get_ins_mask_dir(ins_path):
     ins_name = os.path.basename(ins_path)
     mask_folder = os.path.join(os.path.dirname(os.path.dirname(ins_path)), 'masks')
     ins_pref, ins_surf = os.path.splitext(os.path.basename(os.path.join(mask_folder, ins_name)))
-    print(ins_pref)
 
     if '_mask' in ins_pref:
         alt_pref = ins_pref.replace('_mask', '')

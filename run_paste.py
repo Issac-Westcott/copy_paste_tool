@@ -63,12 +63,12 @@ if __name__ == '__main__':
                                 |---masks(optional)
                             |---...
                     |---output(相关文件夹会自动创建)
-                            |---composites
-                                |---(数个带时间戳的文件夹)
-                                |---...
-                            |---masks
-                                |---(数个带时间戳的文件夹，与composite对应)
-                            |---labels
+                            |---时间戳
+                                |---composites
+                                    |---...（图片）
+                                |---masks
+                                    |---...（图片）
+                                |---labels
                                 
     json格式参考example_bg_data.json。需要注意，如果列表中某个dict内没有“img_class”一项，检索该图片时则会在backgrounds文件夹内遍历，
     如果有重名情况可能会找到错误的图片
@@ -98,10 +98,12 @@ if __name__ == '__main__':
     bg_num = len(os.listdir(bg_folder))
 
     # 如果是在已有标注的数据上paste，读取原始背景中的数据
-    if args.bg_json_path is not None:
+    # if args.bg_json_path is not None:
+    original_data = []
+    if os.path.exists(args.bg_json_path):
         with open(args.bg_json_path, 'r') as f:
             original_data = json.load(f)
-    assert original_data
+        assert original_data
     # 开始合成
     used_bg = used_ins = 0
 
@@ -127,15 +129,15 @@ if __name__ == '__main__':
                     ins_img, ins_mask_img, bg_img, args, bg_data_dict)
                 x, y = find_non_overlapping_position(scaled_ins_img.size, bg_img.size,
                                                      bg_bbox_dict, args.max_attempt_finding_xy)
-                scaled_ins_img.save(os.path.join(composite_save_folder, 'example.jpg'))
-                if scaled_ins_mask_img:
-                    scaled_ins_mask_img.save(os.path.join(comp_mask_save_folder, 'example_mask.jpg'))
+                # scaled_ins_img.save(os.path.join(composite_save_folder, 'example.jpg'))
+                # if scaled_ins_mask_img:
+                #     scaled_ins_mask_img.save(os.path.join(comp_mask_save_folder, 'example_mask.jpg'))
 
                 # 准备粘贴
                 if x is None or y is None:
                     continue
                 else:
-                    bg_img = paste_img_or_mask(scaled_ins_img, bg_img, (x, y), ins_mask_img)
+                    bg_img = paste_img_or_mask(scaled_ins_img, bg_img, (x, y), scaled_ins_mask_img)
                     final_mask_img = paste_img_or_mask(scaled_ins_mask_img, final_mask_img, (x, y))
             bg_img.save(os.path.join(composite_save_folder, f"{str(len(os.listdir(composite_save_folder)) + 1)}.png"))
             final_mask_img.save(os.path.join(
