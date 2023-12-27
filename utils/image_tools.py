@@ -25,6 +25,7 @@ def calculate_average_size(bounding_boxes):
 
 def get_scaled_image(ins_img, mask_img, bg_img, args, bg_data_dict: dict = None):
     """
+    :param mask_img:
     :param ins_img:
     :param bg_img:
     :param args:
@@ -78,7 +79,6 @@ def get_scaled_image(ins_img, mask_img, bg_img, args, bg_data_dict: dict = None)
     if not mask_img:
         scaled_mask_img = None
 
-
     return scaled_ins_image, scaled_mask_img
 
 
@@ -111,7 +111,8 @@ def find_non_overlapping_position(ins_img_size, bg_img_size, existing_bounding_b
         ]
 
         # 检查是否与任何现存bbox重叠
-        overlap = any(is_overlap(new_box, existing_bounding_boxes[category]) for category in existing_bounding_boxes.keys())
+        overlap = any(
+            is_overlap(new_box, existing_bounding_boxes[category]) for category in existing_bounding_boxes.keys())
 
         if not overlap:
             return x, y
@@ -162,4 +163,3 @@ def paste_img_or_mask(ins_img, bg_img, coord, mask_for_ins=None):
     y4 = y + new_height
 
     return bg_img, [x1, y1, x2, y2, x3, y3, x4, y4]
-
