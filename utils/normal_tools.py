@@ -15,21 +15,23 @@ def get_format_beijing_time():
     return bj_time
 
 
-def get_folders(project_folder: str, time_now: str, args):
+def get_folders(project_folder: str, time_now: str, ins_category: list):
     """
     返回 background、instance(基于args.ins_category的list)、instance_masks(基于args.ins_category的list)、
     composite/(时间戳）、composite_mask/(时间戳）文件夹，同时自动创建输出文件夹
     :param project_folder: 整个图片项目的最外层文件夹
     :param time_now: 时间戳（字符串）
-    :param args: 参数解析器
+    :param ins_category: 准备后续粘贴的类别名称。如果为None则默认将文件夹内全选
     :return:分别为 background(str)、instance(list)、instance_masks(list)、composite/(时间戳）(str)、
             composite_mask/(时间戳）(str) 文件夹路径
     """
+    if not ins_category:
+        ins_category = os.listdir(os.path.join(project_folder, 'instances'))
     bg_folder = os.path.join(project_folder, 'backgrounds')
     ins_folder_list = [os.path.join(project_folder, 'instances', class_name, 'images')
-                       for class_name in args.ins_category]
+                       for class_name in ins_category]
     ins_mask_folder_list = [os.path.join(project_folder, 'instances', class_name, 'masks')
-                            for class_name in args.ins_category]
+                            for class_name in ins_category]
     composite_save_folder = os.path.join(project_folder, 'output', 'composites', time_now)
     comp_mask_save_folder = os.path.join(project_folder, 'output', 'masks', time_now)
 

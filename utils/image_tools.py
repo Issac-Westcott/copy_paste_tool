@@ -53,12 +53,31 @@ def get_scaled_image(ins_img, mask_img, bg_img, args, bg_data_dict: dict = None)
     # Scale the new object images
     new_width = int(ins_img.width * scaling_factor)
     new_height = int(ins_img.height * scaling_factor)
-    scaled_ins_image = ins_img.resize((new_width, new_height))
-    if mask_img:
-        scaled_mask_img = mask_img.resize((new_width, new_height))
-        assert ins_img.size == mask_img.size
+    if args.resample_method == 'LANCZOS':
+        scaled_ins_image = ins_img.resize((new_width, new_height), resample=Image.Resampling.LANCZOS)
+        if mask_img:
+            scaled_mask_img = mask_img.resize((new_width, new_height), resample=Image.Resampling.LANCZOS)
+            assert ins_img.size == mask_img.size
     else:
+        if args.resample_method == 'BILINEAR':
+            scaled_ins_image = ins_img.resize((new_width, new_height), resample=Image.Resampling.BILINEAR)
+            if mask_img:
+                scaled_mask_img = mask_img.resize((new_width, new_height), resample=Image.Resampling.BILINEAR)
+                assert ins_img.size == mask_img.size
+        else:
+            if args.resample_method == 'BICUBIC':
+                scaled_ins_image = ins_img.resize((new_width, new_height), resample=Image.Resampling.BICUBIC)
+                if mask_img:
+                    scaled_mask_img = mask_img.resize((new_width, new_height), resample=Image.Resampling.BICUBIC)
+                    assert ins_img.size == mask_img.size
+            else:
+                scaled_ins_image = ins_img.resize((new_width, new_height))
+                if mask_img:
+                    scaled_mask_img = mask_img.resize((new_width, new_height))
+                    assert ins_img.size == mask_img.size
+    if not mask_img:
         scaled_mask_img = None
+
 
     return scaled_ins_image, scaled_mask_img
 
@@ -110,3 +129,21 @@ def get_some_instances(instance_img_path_list, img_num) -> list:
         ins_list.append(ins_name)
 
     return ins_list
+
+
+def paste_img_or_mask(ins_img, bg_img, coord, mask_for_ins=None):
+    """
+    注意：如果需要粘贴mask，传入一张黑色图片或者已经粘贴了数个mask的黑色图即可
+    :param ins_img: 应为缩放后的目标图
+    :param bg_img: 需要粘贴的背景图。
+    :param coord: (x,y)元组
+    :param mask_for_ins: 如果没有，就做最简单的粘贴；如果不为None，就会根据mask粘贴目标
+    :return: 合成图像（PIL.Image)
+    """
+    if mask_for_ins:
+        bg_img.paste(ins_img, coord, mask=mask_for_ins)
+    else:
+        bg_img.paste(ins_img, coord)
+
+    return bg_img
+

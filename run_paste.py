@@ -46,6 +46,8 @@ def get_parser():
                              "比如想要粘贴小汽车目标，应参考small-vehicle而非airport的大小")
     parser.add_argument("--max_attempt_finding_xy", type=int, default=1000000,
                         help="寻找不重叠的粘贴坐标时，最大允许的尝试次数。避免死循环。若找不到则跳过这个instance")
+    parser.add_argument("--resample_method", default="LANCZOS", choices=['LANCZOS', 'BILINEAR', 'BICUBIC'],
+                        help="图像缩放时的插值方法")
     args = parser.parse_args()
     return args
 
@@ -66,6 +68,7 @@ if __name__ == '__main__':
                                 |---...
                             |---masks
                                 |---(数个带时间戳的文件夹，与composite对应)
+                            |---labels
                                 
     json格式参考example_bg_data.json。需要注意，如果列表中某个dict内没有“img_class”一项，检索该图片时则会在backgrounds文件夹内遍历，
     如果有重名情况可能会找到错误的图片
@@ -81,7 +84,7 @@ if __name__ == '__main__':
     bg_folder, ins_folder_list, ins_mask_folder_list, composite_save_folder, comp_mask_save_folder = get_folders(
         args.project_folder,
         time_now,
-        args
+        args.ins_category
     )
 
     # 得到全部目标图片路径和背景文件路径，同时分别计数
@@ -109,19 +112,34 @@ if __name__ == '__main__':
             bg_img = Image.open(bg_path)
             ins_num_per_bg = random.randint(args.min_num_ins_per_bg, args.max_num_ins_per_bg)
             selected_ins_path_list = get_some_instances(ins_path_list, ins_num_per_bg)
-            bg_data_dict = {}
-            for one_dict in original_data:
-                if one_dict['img_name'] == os.path.basename(bg_path):
-                    bg_data_dict = one_dict
-                    bg_bbox_dict = bg_data_dict['instances']
+            bg_data_dict = bg_bbox_dict = new_ins_data_dict = {}
+            final_mask_img = Image.new('RGB', (bg_img.size[0], bg_img.size[1]), (0, 0, 0))
+            if original_data:
+                for one_dict in original_data:
+                    if one_dict['img_name'] == os.path.basename(bg_path):
+                        bg_data_dict = one_dict
+                        bg_bbox_dict = bg_data_dict['instances']
             for ins_path in selected_ins_path_list:
                 ins_mask_path = get_ins_mask_dir(ins_path)
                 ins_img = Image.open(ins_path)
                 ins_mask_img = Image.open(ins_mask_path) if ins_mask_path else None
                 scaled_ins_img, scaled_ins_mask_img = get_scaled_image(
                     ins_img, ins_mask_img, bg_img, args, bg_data_dict)
-                x, y = find_non_overlapping_position(scaled_ins_img.size, bg_img.size, bg_bbox_dict, args.max_attempt_finding_xy)
+                x, y = find_non_overlapping_position(scaled_ins_img.size, bg_img.size,
+                                                     bg_bbox_dict, args.max_attempt_finding_xy)
                 scaled_ins_img.save(os.path.join(composite_save_folder, 'example.jpg'))
                 if scaled_ins_mask_img:
                     scaled_ins_mask_img.save(os.path.join(comp_mask_save_folder, 'example_mask.jpg'))
+
+                # 准备粘贴
+                if x is None or y is None:
+                    continue
+                else:
+                    bg_img = paste_img_or_mask(scaled_ins_img, bg_img, (x, y), ins_mask_img)
+                    final_mask_img = paste_img_or_mask(scaled_ins_mask_img, final_mask_img, (x, y))
+            bg_img.save(os.path.join(composite_save_folder, f"{str(len(os.listdir(composite_save_folder)) + 1)}.png"))
+            final_mask_img.save(os.path.join(
+                comp_mask_save_folder,
+                f"{str(len(os.listdir(composite_save_folder)) + 1)}_mask.png")
+            )
     print("Finished")
