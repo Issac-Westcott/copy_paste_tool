@@ -35,7 +35,11 @@ def get_scaled_image(ins_img, mask_img, bg_img, args, bg_data_dict: dict = None)
     if (not args.manual_scaling) and bg_data_dict:
         if not args.classes_for_autoscaling:
             specified_classes = bg_data_dict["exist_category"]
+            for sp_class in specified_classes:
+                if sp_class not in bg_data_dict["exist_category"]:
+                    specified_classes.remove(sp_class)
         else:
+
             specified_classes = args.classes_for_autoscaling
         specified_boxes_dict = {category: bg_data_dict["instances"][category]
                                 for category in specified_classes}
