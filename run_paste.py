@@ -131,9 +131,6 @@ if __name__ == '__main__':
                     ins_img, ins_mask_img, bg_img, args, bg_data_dict)
                 x, y = find_non_overlapping_position(scaled_ins_img.size, bg_img.size,
                                                      bg_data_dict['instances'], args.max_attempt_finding_xy)
-                # scaled_ins_img.save(os.path.join(composite_save_folder, 'example.jpg'))
-                # if scaled_ins_mask_img:
-                #     scaled_ins_mask_img.save(os.path.join(comp_mask_save_folder, 'example_mask.jpg'))
 
                 # 准备粘贴
                 if x is None or y is None:
