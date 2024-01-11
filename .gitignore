@@ -1,4 +1,6 @@
 *.jpg
 *.png
 *.jpeg
+*.txt
+*.json
 ./exmaple/output/

@@ -32,7 +32,7 @@ def get_scaled_image(ins_img, mask_img, bg_img, args, bg_data_dict: dict = None)
     :param bg_data_dict:
     :return:
     """
-    if (not args.manual_scaling) and bg_data_dict:
+    if (not args.manual_scaling) and bg_data_dict['instances']:
         if not args.classes_for_autoscaling:
             specified_classes = bg_data_dict["exist_category"]
             for sp_class in specified_classes:
@@ -49,8 +49,11 @@ def get_scaled_image(ins_img, mask_img, bg_img, args, bg_data_dict: dict = None)
         min_scaling_factor = min(average_width / ins_img.width, average_height / ins_img.height)
         max_scaling_factor = max(average_width / ins_img.width, average_height / ins_img.height)
     else:
-        min_scaling_factor = args.min_scaling_factor
-        max_scaling_factor = args.max_scaling_factor
+        # 目标图乘以conjugate_scale_factor后，恰好保证每条边都小于等于背景图大小。用于锚定缩放比例
+        conjugate_scale_factor = min(bg_img.width / ins_img.width, bg_img.height / ins_img.height)
+        
+        min_scaling_factor = conjugate_scale_factor * args.min_scaling_factor
+        max_scaling_factor = conjugate_scale_factor * args.max_scaling_factor
 
     assert 0 < args.min_scaling_factor <= args.max_scaling_factor <= 1
     scaling_factor = random.uniform(min_scaling_factor, max_scaling_factor)
@@ -101,6 +104,7 @@ def is_overlap(box1, box2):
 
 
 def find_non_overlapping_position(ins_img_size, bg_img_size, existing_bounding_boxes, max_attempts):
+    
     max_attempts = 1000 if max_attempts is None else max_attempts  # 调整每个目标粘贴时在背景图片上尝试最大次数
 
     # 如果目标图比背景图大，全部返回None
@@ -115,8 +119,11 @@ def find_non_overlapping_position(ins_img_size, bg_img_size, existing_bounding_b
         ]
 
         # 检查是否与任何现存bbox重叠
-        overlap = any(
-            is_overlap(new_box, existing_bounding_boxes[category]) for category in existing_bounding_boxes.keys())
+        if existing_bounding_boxes:
+            overlap = any(
+                is_overlap(new_box, existing_bounding_boxes[category]) for category in existing_bounding_boxes.keys())
+        else:
+            overlap = False
 
         if not overlap:
             return x, y

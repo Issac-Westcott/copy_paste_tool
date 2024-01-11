@@ -11,7 +11,7 @@ from skimage.util import random_noise
 from lxml import etree, objectify
 import xml.etree.ElementTree as ET
 import argparse
- 
+
  
 # 显示图片
 def show_pic(img, bboxes=None):

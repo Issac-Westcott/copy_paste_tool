@@ -2,6 +2,7 @@ import time
 from datetime import datetime
 import pytz
 import os
+import json
 
 
 def get_format_beijing_time():
@@ -67,4 +68,33 @@ def get_ins_mask_dir(ins_path):
     return None
 
 
+def json_to_yolov8(json_data, out_path, yolo_class_index_list):
+    """
+    yolo_class_index_list: 一个列表，包含着所有需要检测的目标，按顺序排列。这样可以确定写入txt时class的编号
+    """
+    if isinstance(json_data, str):
+        with open(json_data, 'r') as f:
+            data = json.load(f)
+    else:
+        assert isinstance(json_data, dict) or isinstance(json_data, list)
+        data = json_data
 
+    bg_width = data["bg_img_info"]["bg_width"]
+    bg_height = data["bg_img_info"]["bg_height"]
+
+    with open(out_path, 'w') as out_file:
+        for category in data["exist_category"]:
+            if category in data["instances"]:
+                for instance in data["instances"][category]:
+                    x_min = min(instance[0], instance[2], instance[4], instance[6])
+                    y_min = min(instance[1], instance[3], instance[5], instance[7])
+                    x_max = max(instance[0], instance[2], instance[4], instance[6])
+                    y_max = max(instance[1], instance[3], instance[5], instance[7])
+
+                    x_center = (x_min + x_max) / 2.0 / bg_width
+                    y_center = (y_min + y_max) / 2.0 / bg_height
+                    width = (x_max - x_min) / bg_width
+                    height = (y_max - y_min) / bg_height
+
+                    
+                    out_file.write(f"{yolo_class_index_list.index(category)} {x_center} {y_center} {width} {height}\n")
