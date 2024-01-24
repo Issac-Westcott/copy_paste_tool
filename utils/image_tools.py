@@ -1,6 +1,7 @@
 from PIL import Image
 import os
 import random
+import numpy as np
 
 
 def calculate_average_size(bounding_boxes):
@@ -174,3 +175,38 @@ def paste_img_or_mask(ins_img, bg_img, coord, mask_for_ins=None):
     y4 = y + new_height
 
     return bg_img, [x1, y1, x2, y2, x3, y3, x4, y4]
+
+
+def create_cropped_images(input_path):
+    """
+    对矢量图，根据alpha channel提取物体的mask，并根据物体大小精确裁剪，得到恰好包裹整个物体的目标图和mask。
+    返回裁剪后的原图和mask（PIL.Image格式）
+    """
+    # 打开矢量图
+    image = Image.open(input_path)
+
+    # 将图像转换为NumPy数组
+    img_array = np.array(image)
+
+    # 获取 alpha 通道
+    alpha_channel = img_array[:, :, 3]
+
+    # 创建一个mask，将物体设置为白色，其他地方设置为黑色
+    mask = np.zeros_like(alpha_channel)
+    mask[alpha_channel == 255] = 255  # 将完全不透明的部分设为255
+
+    # 寻找包含白色物体的最小矩形框
+    coords = np.column_stack(np.where(mask == 255))
+    x_min, y_min = coords.min(axis=0)
+    x_max, y_max = coords.max(axis=0)
+
+    # 裁剪原图
+    cropped_image = image.crop((y_min, x_min, y_max + 1, x_max + 1))
+
+    # 裁剪 mask
+    cropped_mask = mask[x_min:x_max + 1, y_min:y_max + 1]
+
+    # 将NumPy数组转换回PIL图像
+    cropped_mask_image = Image.fromarray(cropped_mask, mode='L')  # 使用 'L' 模式表示灰度图
+
+    return cropped_image, cropped_mask_image
