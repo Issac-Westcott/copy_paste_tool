@@ -4,3 +4,6 @@
 *.txt
 *.json
 ./exmaple/output/
+.vscode
+.idea
+*.pyc

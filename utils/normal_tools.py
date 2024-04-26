@@ -16,7 +16,7 @@ def get_format_beijing_time():
     return bj_time
 
 
-def get_folders(project_folder: str, time_now: str, ins_category: list):
+def get_folders(project_folder: str, time_now: str, ins_category: list, no_mask: bool = False):
     """
     返回 background、instance(基于args.ins_category的list)、instance_masks(基于args.ins_category的list)、
     composite、composite_mask、composite_label文件夹，同时自动创建输出文件夹
@@ -38,8 +38,9 @@ def get_folders(project_folder: str, time_now: str, ins_category: list):
     composite_label_folder = os.path.join(project_folder, 'output', time_now, 'labels')
 
     os.makedirs(composite_save_folder, exist_ok=True)
-    os.makedirs(comp_mask_folder, exist_ok=True)
     os.makedirs(composite_label_folder, exist_ok=True)
+    if not no_mask:
+        os.makedirs(comp_mask_folder, exist_ok=True)
 
     return bg_folder, ins_folder_list, ins_mask_folder_list, composite_save_folder, comp_mask_folder, composite_label_folder
 
@@ -96,5 +97,5 @@ def json_to_yolov8(json_data, out_path, yolo_class_index_list):
                     width = (x_max - x_min) / bg_width
                     height = (y_max - y_min) / bg_height
 
-                    
+
                     out_file.write(f"{yolo_class_index_list.index(category)} {x_center} {y_center} {width} {height}\n")

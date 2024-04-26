@@ -52,7 +52,7 @@ def get_scaled_image(ins_img, mask_img, bg_img, args, bg_data_dict: dict = None)
     else:
         # 目标图乘以conjugate_scale_factor后，恰好保证每条边都小于等于背景图大小。用于锚定缩放比例
         conjugate_scale_factor = min(bg_img.width / ins_img.width, bg_img.height / ins_img.height)
-        
+
         min_scaling_factor = conjugate_scale_factor * args.min_scaling_factor
         max_scaling_factor = conjugate_scale_factor * args.max_scaling_factor
 
@@ -65,8 +65,10 @@ def get_scaled_image(ins_img, mask_img, bg_img, args, bg_data_dict: dict = None)
     if args.resample_method == 'LANCZOS':
         scaled_ins_image = ins_img.resize((new_width, new_height), resample=Image.Resampling.LANCZOS)
         if mask_img:
-            scaled_mask_img = mask_img.resize((new_width, new_height), resample=Image.Resampling.LANCZOS)
-            assert ins_img.size == mask_img.size
+            scaled_mask_img = mask_img.resize(scaled_ins_image.size, resample=Image.Resampling.LANCZOS)
+            assert scaled_ins_image.size == scaled_mask_img.size
+            # scaled_mask_img = mask_img.resize((new_width, new_height), resample=Image.Resampling.LANCZOS)
+            # assert ins_img.size == mask_img.size
     else:
         if args.resample_method == 'BILINEAR':
             scaled_ins_image = ins_img.resize((new_width, new_height), resample=Image.Resampling.BILINEAR)
@@ -90,6 +92,7 @@ def get_scaled_image(ins_img, mask_img, bg_img, args, bg_data_dict: dict = None)
     return scaled_ins_image, scaled_mask_img
 
 
+@NotImplementedError
 def visualize_bbox():
     raise NotImplementedError
 
@@ -105,7 +108,7 @@ def is_overlap(box1, box2):
 
 
 def find_non_overlapping_position(ins_img_size, bg_img_size, existing_bounding_boxes, max_attempts):
-    
+
     max_attempts = 1000 if max_attempts is None else max_attempts  # 调整每个目标粘贴时在背景图片上尝试最大次数
 
     # 如果目标图比背景图大，全部返回None
@@ -200,13 +203,45 @@ def create_cropped_images(input_path):
     x_min, y_min = coords.min(axis=0)
     x_max, y_max = coords.max(axis=0)
 
+    x_min = x_min - 5 if x_min > 5 else x_min
+    y_min = y_min - 5 if y_min > 5 else y_min
+
+
     # 裁剪原图
-    cropped_image = image.crop((y_min, x_min, y_max + 1, x_max + 1))
+    cropped_image = image.crop((y_min, x_min, y_max + 5, x_max + 5))
 
     # 裁剪 mask
-    cropped_mask = mask[x_min:x_max + 1, y_min:y_max + 1]
+    cropped_mask = mask[x_min:x_max + 5, y_min:y_max + 5]
 
     # 将NumPy数组转换回PIL图像
     cropped_mask_image = Image.fromarray(cropped_mask, mode='L')  # 使用 'L' 模式表示灰度图
 
     return cropped_image, cropped_mask_image
+
+
+def generate_motion_path(num_points):
+    """
+    在一张720*720像素的图片上，生成一条有逻辑的运动轨迹，并在该轨迹上均匀选取n个点的坐标x,y
+
+    参数：
+    num_points (int): 要选择的点的数量。
+
+    返回：
+    np.array: 包含n个(x, y)元组的数组。
+    """
+    # 生成随机运动轨迹（示例：简单的直线运动）
+    start_point = (600, 100)  # 起始点
+    end_point = (300, 300)  # 结束点
+
+    # 计算步长
+    step_x = (end_point[0] - start_point[0]) / (num_points - 1)
+    step_y = (end_point[1] - start_point[1]) / (num_points - 1)
+
+    # 生成均匀选取的点坐标
+    motion_path = []
+    for i in range(num_points):
+        x = int(start_point[0] + step_x * i)
+        y = int(start_point[1] + step_y * i)
+        motion_path.append((x, y))
+
+    return np.array(motion_path)
