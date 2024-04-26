@@ -1,8 +1,9 @@
+import json
+import os
 import time
 from datetime import datetime
+
 import pytz
-import os
-import json
 
 
 def get_format_beijing_time():
@@ -97,5 +98,6 @@ def json_to_yolov8(json_data, out_path, yolo_class_index_list):
                     width = (x_max - x_min) / bg_width
                     height = (y_max - y_min) / bg_height
 
-
+                    if category not in yolo_class_index_list:
+                        raise AttributeError(f"需要在args.yolo_class_list中按照yolo目标index顺序添加{category}类")
                     out_file.write(f"{yolo_class_index_list.index(category)} {x_center} {y_center} {width} {height}\n")

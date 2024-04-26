@@ -12,11 +12,12 @@ import warnings
 
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--project_folder", type=str, default="/home/npz/workspace/copy_paste_tool/input/jy_test",
+    parser.add_argument("--project_folder", type=str, default="./example",
                         help="存放所有素材的文件夹路径。具体文件夹格式见主程序")
     parser.add_argument("--ins_category", type=list, default=None,
                         help="需要粘贴的目标图像的类别。要求将不同类目标按类存放在instances文件夹下。详见主程序")
-    parser.add_argument("--gen_num", type=int, default=10, help="如果大于0，则模式变为强制生成多少张合成图片，背景会反复随机选取")
+    parser.add_argument("--gen_num", type=int, default=10,
+                        help="如果大于0，则模式变为强制生成多少张合成图片，背景会反复随机选取")
     parser.add_argument("--min_num_ins_per_bg", type=int, default=5, help="设定每张图片上放置的最小目标个数")
     parser.add_argument("--max_num_ins_per_bg", type=int, default=7, help="设定每张图片上放置的最大目标个数")
     parser.add_argument("--bg_json_path", type=str, default=None,
@@ -51,7 +52,7 @@ def get_parser():
     parser.add_argument("--resample_method", default="LANCZOS", choices=['LANCZOS', 'BILINEAR', 'BICUBIC'],
                         help="图像缩放时的插值方法")
     parser.add_argument("--yolo_class_list", type=list,
-                        default=['car', 'truck', 'tank', 'armored_car', 'radar', 'artillery'])
+                        default=['car', 'truck', 'tank', 'armored_car', 'radar', 'artillery', 'boat', 'airplane'])
     parser.add_argument("--motion_mode", type=bool, default=False,
                         help="是否生成有规律运动的目标，只允许有一个物体")
     args = parser.parse_args()
@@ -131,7 +132,7 @@ if __name__ == '__main__':
                 bg_img = Image.open(bg_path)
                 ins_num_per_bg = random.randint(args.min_num_ins_per_bg, args.max_num_ins_per_bg)
                 selected_ins_path_list = get_some_instances(ins_path_list, ins_num_per_bg)
-                bg_data_dict  = new_ins_data_dict = {}
+                bg_data_dict = new_ins_data_dict = {}
                 final_mask_img = Image.new('RGB', (bg_img.size[0], bg_img.size[1]), (0, 0, 0))
 
                 # 如果存在bg json数据，则读取
@@ -151,7 +152,7 @@ if __name__ == '__main__':
                             'img_name': os.path.basename(bg_path),
                             'bg_width': bg_img.width,
                             'bg_height': bg_img.height
-                            },
+                        },
                         'instances': {},
                         'exist_category': []
                     }
@@ -159,14 +160,15 @@ if __name__ == '__main__':
                 for ins_path in selected_ins_path_list:
                     ins_mask_path = get_ins_mask_dir(ins_path)
                     ins_img = Image.open(ins_path)
-                    ins_mask_img = Image.open(ins_mask_path).convert("L") if (ins_mask_path and not args.no_ins_mask) else None
+                    ins_mask_img = Image.open(ins_mask_path).convert("L") if (
+                            ins_mask_path and not args.no_ins_mask) else None
                     scaled_ins_img, scaled_ins_mask_img = get_scaled_image(
                         ins_img, ins_mask_img, bg_img, args, bg_data_dict)
                     if args.no_ins_mask:
                         scaled_ins_mask_img = None
                     existing_bounding_boxes = bg_data_dict['instances'] if bg_data_dict['instances'] else {}
                     x, y = find_non_overlapping_position(scaled_ins_img.size, bg_img.size,
-                                                        existing_bounding_boxes, args.max_attempt_finding_xy)
+                                                         existing_bounding_boxes, args.max_attempt_finding_xy)
 
                     # 准备粘贴
                     if x is None or y is None:
@@ -188,7 +190,8 @@ if __name__ == '__main__':
                     month_date_str = datetime_obj.strftime("%m%d")
 
                     saved_img_num = len(os.listdir(composite_save_folder))
-                    bg_img.save(os.path.join(composite_save_folder, f"composite_{month_date_str}_{str(saved_img_num + 1)}.png"))
+                    bg_img.save(
+                        os.path.join(composite_save_folder, f"composite_{month_date_str}_{str(saved_img_num + 1)}.png"))
                     if args.no_ins_mask:
                         final_mask_img.save(os.path.join(
                             comp_mask_save_folder,
@@ -201,19 +204,22 @@ if __name__ == '__main__':
                             f"composite_{month_date_str}_{str(saved_img_num + 1)}.json"), 'w') as f:
                         json.dump(bg_data_dict, f, indent=4)
 
-                    json_to_yolov8(bg_data_dict, os.path.join(composite_label_folder, 'yolo_txt', f"composite_{month_date_str}_{str(saved_img_num + 1)}.txt"), args.yolo_class_list)
+                    json_to_yolov8(bg_data_dict, os.path.join(composite_label_folder, 'yolo_txt',
+                                                              f"composite_{month_date_str}_{str(saved_img_num + 1)}.txt"),
+                                   args.yolo_class_list)
                 else:
-                    warnings.warn(f"背景图 {os.path.basename(bg_path)} 中难以粘贴合适的instance，请留意（该图像未保存）", UserWarning)
+                    warnings.warn(f"背景图 {os.path.basename(bg_path)} 中难以粘贴合适的instance，请留意（该图像未保存）",
+                                  UserWarning)
         else:
             print(f"Generating {args.gen_num} images, as set in args.gen_num")
-            if args.motion_mode: # 如果需要生成有轨迹运动的图片的话（目标数量只能为1）
+            if args.motion_mode:  # 如果需要生成有轨迹运动的图片的话（目标数量只能为1）
                 motion_path_coor = generate_motion_path(args.gen_num)
             for ii in tqdm(range(args.gen_num)):
                 bg_path = random.choice(bg_path_list)
                 bg_img = Image.open(bg_path)
                 ins_num_per_bg = random.randint(args.min_num_ins_per_bg, args.max_num_ins_per_bg)
                 selected_ins_path_list = get_some_instances(ins_path_list, ins_num_per_bg)
-                bg_data_dict  = new_ins_data_dict = {}
+                bg_data_dict = new_ins_data_dict = {}
                 final_mask_img = Image.new('RGB', (bg_img.size[0], bg_img.size[1]), (0, 0, 0))
 
                 # 如果存在bg json数据，则读取
@@ -233,7 +239,7 @@ if __name__ == '__main__':
                             'img_name': os.path.basename(bg_path),
                             'bg_width': bg_img.width,
                             'bg_height': bg_img.height
-                            },
+                        },
                         'instances': {},
                         'exist_category': []
                     }
@@ -242,12 +248,13 @@ if __name__ == '__main__':
                 for ins_path in selected_ins_path_list:
                     ins_mask_path = get_ins_mask_dir(ins_path)
                     ins_img = Image.open(ins_path)
-                    ins_mask_img = Image.open(ins_mask_path).convert("L") if (ins_mask_path and not args.no_ins_mask) else None
+                    ins_mask_img = Image.open(ins_mask_path).convert("L") if (
+                            ins_mask_path and not args.no_ins_mask) else None
                     scaled_ins_img, scaled_ins_mask_img = get_scaled_image(
                         ins_img, ins_mask_img, bg_img, args, bg_data_dict)
                     existing_bounding_boxes = bg_data_dict['instances'] if bg_data_dict['instances'] else {}
                     x, y = find_non_overlapping_position(scaled_ins_img.size, bg_img.size,
-                                                        existing_bounding_boxes, args.max_attempt_finding_xy)
+                                                         existing_bounding_boxes, args.max_attempt_finding_xy)
                     if args.motion_mode:
                         x = int(motion_path_coor[ii][0])
                         y = int(motion_path_coor[ii][1])
@@ -272,7 +279,8 @@ if __name__ == '__main__':
                     month_date_str = datetime_obj.strftime("%m%d")
 
                     saved_img_num = len(os.listdir(composite_save_folder))
-                    bg_img.save(os.path.join(composite_save_folder, f"composite_{month_date_str}_{str(saved_img_num + 1)}.png"))
+                    bg_img.save(
+                        os.path.join(composite_save_folder, f"composite_{month_date_str}_{str(saved_img_num + 1)}.png"))
                     if not args.no_ins_mask:
                         os.makedirs(comp_mask_save_folder, exist_ok=True)
                         final_mask_img.save(os.path.join(
@@ -286,7 +294,10 @@ if __name__ == '__main__':
                             f"composite_{month_date_str}_{str(saved_img_num + 1)}.json"), 'w') as f:
                         json.dump(bg_data_dict, f, indent=4)
 
-                    json_to_yolov8(bg_data_dict, os.path.join(composite_label_folder, 'yolo_txt', f"composite_{month_date_str}_{str(saved_img_num + 1)}.txt"), args.yolo_class_list)
+                    json_to_yolov8(bg_data_dict, os.path.join(composite_label_folder, 'yolo_txt',
+                                                              f"composite_{month_date_str}_{str(saved_img_num + 1)}.txt"),
+                                   args.yolo_class_list)
                 else:
-                    warnings.warn(f"背景图 {os.path.basename(bg_path)} 中难以粘贴合适的instance，请留意（该图像未保存）", UserWarning)
+                    warnings.warn(f"背景图 {os.path.basename(bg_path)} 中难以粘贴合适的instance，请留意（该图像未保存）",
+                                  UserWarning)
     print("Finished")

@@ -108,7 +108,6 @@ def is_overlap(box1, box2):
 
 
 def find_non_overlapping_position(ins_img_size, bg_img_size, existing_bounding_boxes, max_attempts):
-
     max_attempts = 1000 if max_attempts is None else max_attempts  # 调整每个目标粘贴时在背景图片上尝试最大次数
 
     # 如果目标图比背景图大，全部返回None
@@ -205,7 +204,6 @@ def create_cropped_images(input_path):
 
     x_min = x_min - 5 if x_min > 5 else x_min
     y_min = y_min - 5 if y_min > 5 else y_min
-
 
     # 裁剪原图
     cropped_image = image.crop((y_min, x_min, y_max + 5, x_max + 5))
