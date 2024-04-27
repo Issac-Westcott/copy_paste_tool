@@ -12,13 +12,13 @@ import warnings
 
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--project_folder", type=str, default="./example",
+    parser.add_argument("--project_folder", type=str, default="./contrlnet_data_example",
                         help="存放所有素材的文件夹路径。具体文件夹格式见主程序")
     parser.add_argument("--ins_category", type=list, default=None,
                         help="需要粘贴的目标图像的类别。要求将不同类目标按类存放在instances文件夹下。详见主程序")
-    parser.add_argument("--gen_num", type=int, default=10,
+    parser.add_argument("--gen_num", type=int, default=20000,
                         help="如果大于0，则模式变为强制生成多少张合成图片，背景会反复随机选取")
-    parser.add_argument("--min_num_ins_per_bg", type=int, default=5, help="设定每张图片上放置的最小目标个数")
+    parser.add_argument("--min_num_ins_per_bg", type=int, default=1, help="设定每张图片上放置的最小目标个数")
     parser.add_argument("--max_num_ins_per_bg", type=int, default=7, help="设定每张图片上放置的最大目标个数")
     parser.add_argument("--bg_json_path", type=str, default=None,
                         help="如果是在已有目标的图上粘贴新目标，为了防止随机选取粘贴坐标导致的遮挡，可以读取原图的标注数据提取已有bbox"
@@ -27,10 +27,10 @@ def get_parser():
     parser.add_argument("--manual_scaling", type=bool, default=False,
                         help="如果为False，默认尝试读取原数据json自动获取scaling，只有找不到json才使用设定缩放比例；"
                              "如果为True，则强制使用人工设定的缩放上下限")
-    parser.add_argument("--min_scaling_factor", type=float, default=0.04,
+    parser.add_argument("--min_scaling_factor", type=float, default=0.1,
                         help="设定每张图片上放置目标的缩放比例下限（0-1）。"
                              "若为1，则代表instance的长/宽此时与背景长/宽相等（以先到达100%者为准")
-    parser.add_argument("--max_scaling_factor", type=float, default=0.04,
+    parser.add_argument("--max_scaling_factor", type=float, default=0.2,
                         help="设定每张图片上放置目标的缩放比例下限（0-1）"
                              "若为1，则代表instance的长/宽此时与背景长/宽相等（以先到达100%者为准")
     parser.add_argument("--no_ins_mask", type=bool, default=False,
@@ -55,6 +55,8 @@ def get_parser():
                         default=['car', 'truck', 'tank', 'armored_car', 'radar', 'artillery', 'boat', 'airplane'])
     parser.add_argument("--motion_mode", type=bool, default=False,
                         help="是否生成有规律运动的目标，只允许有一个物体")
+    parser.add_argument("--controlnet_gen_data", type=bool, default=True,
+                        help="controlnet生成数据时，文件夹格式有所不同，mask映射关系也会改变")
     args = parser.parse_args()
     return args
 
@@ -98,20 +100,26 @@ if __name__ == '__main__':
     )
 
     # 得到全部目标图片路径和背景文件路径，同时分别计数
-    controlnet_gen_data = False
     # 如果是controlnet合成数据，instances/{装备类型}/images 文件夹下，每张图片都有一个单独的文件夹.
-    # 同时还会有
-    if controlnet_gen_data:
-        raise NotImplementedError
+    # 同时还会有canny.jpg这样的不需要的数据，需要予以剔除
+    if args.controlnet_gen_data:
+        ins_path_list = []
+        for ins_folder in ins_folder_list:
+            for ctrl_image_folder in os.listdir(ins_folder):
+                for file in os.listdir(os.path.join(ins_folder, ctrl_image_folder)):
+                    if "canny" not in file:  # 排除canny.jpg等文件
+                        ins_path_list.append(os.path.join(ins_folder, ctrl_image_folder, file))
+        ins_num = len(ins_path_list)
     else:
         ins_path_list = []
+        # ins_folder_list: 所有类的images文件夹绝对路径
         for ins_folder in ins_folder_list:
             for file in os.listdir(ins_folder):
                 ins_path_list.append(os.path.join(ins_folder, file))
         ins_num = len(ins_path_list)
 
-        bg_path_list = [os.path.join(bg_folder, file) for file in os.listdir(bg_folder)]
-        bg_num = len(bg_path_list)
+    bg_path_list = [os.path.join(bg_folder, file) for file in os.listdir(bg_folder)]
+    bg_num = len(bg_path_list)
 
     # 如果是在已有标注的数据上paste，读取原始背景中的数据
     # if args.bg_json_path is not None:
@@ -248,10 +256,14 @@ if __name__ == '__main__':
                 have_at_least_one_instance = False  # 防止极端情况下一个合适的坐标都没找到，而生成无目标图
 
                 for ins_path in selected_ins_path_list:
-                    ins_mask_path = get_ins_mask_dir(ins_path)
+                    if args.controlnet_gen_data:
+                        ins_mask_path = get_ctrlnet_ins_mask_dir(ins_path)
+                    else:
+                        ins_mask_path = get_ins_mask_dir(ins_path)
                     ins_img = Image.open(ins_path)
                     ins_mask_img = Image.open(ins_mask_path).convert("L") if (
                             ins_mask_path and not args.no_ins_mask) else None
+                    # 中间已经包含着mask与image dimension一致的断言
                     scaled_ins_img, scaled_ins_mask_img = get_scaled_image(
                         ins_img, ins_mask_img, bg_img, args, bg_data_dict)
                     existing_bounding_boxes = bg_data_dict['instances'] if bg_data_dict['instances'] else {}

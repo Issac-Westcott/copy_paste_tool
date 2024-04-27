@@ -5,7 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3dccefa9-ca27-4b12-8060-43e14f2e6639" name="更改" comment="test">
+      <change afterPath="$PROJECT_DIR$/.gitattributes" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/augmentation.py" beforeDir="false" afterPath="$PROJECT_DIR$/augmentation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_paste.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_paste.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/normal_tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/normal_tools.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,20 +38,20 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Issac-Westcott"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Issac-Westcott&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Issac-Westcott/copy_paste_tool.git",
-    "accountId": "b27fe749-a817-48c9-a69a-d96c5277e6e3"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Issac-Westcott/copy_paste_tool.git&quot;,
+    &quot;accountId&quot;: &quot;b27fe749-a817-48c9-a69a-d96c5277e6e3&quot;
   }
-}]]></component>
+}</component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
@@ -71,30 +78,30 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "E:/workspace/copy_paste_tool",
+    "last_opened_file_path": "E:/workspace/copy_paste_tool/contrlnet_data_example/instances/radar",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.General",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\workspace\copy_paste_tool\contrlnet_data_example\instances\radar" />
+      <recent name="E:\workspace\copy_paste_tool\contrlnet_data_example" />
       <recent name="E:\workspace\copy_paste_tool" />
       <recent name="E:\workspace\copy_paste_tools\example\instances\airplane" />
       <recent name="E:\workspace\copy_paste_tools\example\instances\boat" />
-      <recent name="E:\workspace\copy_paste_tools\example\instances\helicopter" />
-      <recent name="E:\workspace\copy_paste_tools\example\backgrounds" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\workspace\copy_paste_tool\contrlnet_data_example\instances\radar\images" />
       <recent name="E:\workspace\copy_paste_tool" />
       <recent name="E:\workspace\copy_paste_tools\example\instances\boat\images" />
       <recent name="E:\workspace\copy_paste_tools\example\instances\boat\masks" />
       <recent name="E:\workspace\copy_paste_tools\example\instances\airplane\images" />
-      <recent name="E:\workspace\copy_paste_tools\example\instances\airplane\masks" />
     </key>
   </component>
   <component name="RunManager">
@@ -151,6 +158,7 @@
       <workItem from="1714136500382" duration="420000" />
       <workItem from="1714136933615" duration="1806000" />
       <workItem from="1714201529827" duration="470000" />
+      <workItem from="1714202468553" duration="2179000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />
@@ -205,6 +213,7 @@
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <ignored-roots>
       <path value="$PROJECT_DIR$" />
+      <path value="$PROJECT_DIR$/.." />
     </ignored-roots>
     <MESSAGE value="first commit" />
     <MESSAGE value="test" />
@@ -215,14 +224,14 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/run_paste.py</url>
-          <line>106</line>
-          <option name="timeStamp" value="1" />
+          <line>261</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/copy_paste_tools$run_paste.coverage" NAME="run_paste 覆盖结果" MODIFIED="1703677594617" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/copy_paste_tool$run_paste.coverage" NAME="run_paste 覆盖结果" MODIFIED="1714201726445" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/copy_paste_tool$run_paste.coverage" NAME="run_paste 覆盖结果" MODIFIED="1714203467417" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

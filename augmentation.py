@@ -15,12 +15,11 @@ import argparse
 
 # 显示图片
 def show_pic(img, bboxes=None):
-    '''
-    输入:
-        img:图像array
-        bboxes:图像的所有boudning box list, 格式为[[x_min, y_min, x_max, y_max]....]
-        names:每个box对应的名称
-    '''
+    """
+        :param img:图像array
+        :param bboxes:图像的所有boudning box list, 格式为[[x_min, y_min, x_max, y_max]....]
+        :param names:每个box对应的名称
+    """
     for i in range(len(bboxes)):
         bbox = bboxes[i]
         x_min = bbox[0]

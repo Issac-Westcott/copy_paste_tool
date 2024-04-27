@@ -71,6 +71,30 @@ def get_ins_mask_dir(ins_path):
     return None
 
 
+def get_ctrlnet_ins_mask_dir(ins_path):
+    ins_name = os.path.basename(os.path.dirname(ins_path))
+    mask_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(ins_path))), "masks")
+    ins_pref, ins_surf = os.path.splitext(os.path.basename(os.path.join(mask_folder, ins_name)))
+
+    if '_mask' in ins_pref:
+        alt_pref = ins_pref.replace('_mask', '')
+    else:
+        if 'mask' in ins_pref:
+            alt_pref = ins_pref.replace('mask', '')
+        else:
+            alt_pref = ins_pref
+
+    possible_file_surfix = ['.jpg', '.jpeg', '.png']
+    possible_mask_surfix = ['', 'mask', '_mask']
+    for mask_surfix in possible_mask_surfix:
+        for surfix in possible_file_surfix:
+            possible_file_path = os.path.join(mask_folder, alt_pref + mask_surfix + surfix)
+            if os.path.exists(possible_file_path):
+                return possible_file_path
+
+    raise FileNotFoundError(f"{ins_name}图片的mask未找到")
+
+
 def json_to_yolov8(json_data, out_path, yolo_class_index_list):
     """
     yolo_class_index_list: 一个列表，包含着所有需要检测的目标，按顺序排列。这样可以确定写入txt时class的编号
