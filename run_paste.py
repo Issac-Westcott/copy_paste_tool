@@ -99,6 +99,8 @@ if __name__ == '__main__':
 
     # 得到全部目标图片路径和背景文件路径，同时分别计数
     controlnet_gen_data = False
+    # 如果是controlnet合成数据，instances/{装备类型}/images 文件夹下，每张图片都有一个单独的文件夹.
+    # 同时还会有
     if controlnet_gen_data:
         raise NotImplementedError
     else:

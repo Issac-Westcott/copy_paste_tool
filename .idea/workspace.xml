@@ -4,17 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3dccefa9-ca27-4b12-8060-43e14f2e6639" name="更改" comment="first commit">
-      <change afterPath="$PROJECT_DIR$/../copy_paste_tools/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../copy_paste_tools/plot_score.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../copy_paste_tools/segment_vector_mask.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../copy_paste_tools/test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../copy_paste_tools/test2.py" afterDir="false" />
+    <list default="true" id="3dccefa9-ca27-4b12-8060-43e14f2e6639" name="更改" comment="test">
       <change beforePath="$PROJECT_DIR$/run_paste.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_paste.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../copy_paste_tools/example/example_bg_data.json" beforeDir="false" afterPath="$PROJECT_DIR$/../copy_paste_tools/example/example_bg_data.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../copy_paste_tools/run_paste.py" beforeDir="false" afterPath="$PROJECT_DIR$/../copy_paste_tools/run_paste.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../copy_paste_tools/utils/image_tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/../copy_paste_tools/utils/image_tools.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../copy_paste_tools/utils/normal_tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/../copy_paste_tools/utils/normal_tools.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,6 +33,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Issac-Westcott"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Issac-Westcott/copy_paste_tool.git",
+    "accountId": "b27fe749-a817-48c9-a69a-d96c5277e6e3"
+  }
+}]]></component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
@@ -63,7 +66,7 @@
   "keyToString": {
     "ASKED_ADD_EXTERNAL_FILES": "true",
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Python.run_paste.executor": "Run",
+    "Python.run_paste.executor": "Debug",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
@@ -147,6 +150,7 @@
       <workItem from="1703745301159" duration="215000" />
       <workItem from="1714136500382" duration="420000" />
       <workItem from="1714136933615" duration="1806000" />
+      <workItem from="1714201529827" duration="470000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />
@@ -172,7 +176,15 @@
       <option name="project" value="LOCAL" />
       <updated>1703663002059</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="test">
+      <option name="closed" value="true" />
+      <created>1714201544903</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1714201544903</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -195,10 +207,22 @@
       <path value="$PROJECT_DIR$" />
     </ignored-roots>
     <MESSAGE value="first commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="first commit" />
+    <MESSAGE value="test" />
+    <option name="LAST_COMMIT_MESSAGE" value="test" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/run_paste.py</url>
+          <line>106</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/copy_paste_tools$run_paste.coverage" NAME="run_paste 覆盖结果" MODIFIED="1703677594617" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/copy_paste_tool$run_paste.coverage" NAME="run_paste 覆盖结果" MODIFIED="1714142179849" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/copy_paste_tool$run_paste.coverage" NAME="run_paste 覆盖结果" MODIFIED="1714201726445" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

@@ -21,6 +21,7 @@ def get_folders(project_folder: str, time_now: str, ins_category: list, no_mask:
     """
     返回 background、instance(基于args.ins_category的list)、instance_masks(基于args.ins_category的list)、
     composite、composite_mask、composite_label文件夹，同时自动创建输出文件夹
+    :param no_mask: 是否包含mask路径
     :param project_folder: 整个图片项目的最外层文件夹
     :param time_now: 时间戳（字符串）
     :param ins_category: 准备后续粘贴的类别名称。如果为None则默认将文件夹内全选
