@@ -12,11 +12,11 @@ import warnings
 
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--project_folder", type=str, default="./contrlnet_data_example",
+    parser.add_argument("--project_folder", type=str, default="/home/npz/workspace/copy_paste_tool/example",
                         help="存放所有素材的文件夹路径。具体文件夹格式见主程序")
     parser.add_argument("--ins_category", type=list, default=None,
                         help="需要粘贴的目标图像的类别。要求将不同类目标按类存放在instances文件夹下。详见主程序")
-    parser.add_argument("--gen_num", type=int, default=20000,
+    parser.add_argument("--gen_num", type=int, default=10,
                         help="如果大于0，则模式变为强制生成多少张合成图片，背景会反复随机选取")
     parser.add_argument("--min_num_ins_per_bg", type=int, default=1, help="设定每张图片上放置的最小目标个数")
     parser.add_argument("--max_num_ins_per_bg", type=int, default=7, help="设定每张图片上放置的最大目标个数")
@@ -30,7 +30,7 @@ def get_parser():
     parser.add_argument("--min_scaling_factor", type=float, default=0.1,
                         help="设定每张图片上放置目标的缩放比例下限（0-1）。"
                              "若为1，则代表instance的长/宽此时与背景长/宽相等（以先到达100%者为准")
-    parser.add_argument("--max_scaling_factor", type=float, default=0.2,
+    parser.add_argument("--max_scaling_factor", type=float, default=0.15,
                         help="设定每张图片上放置目标的缩放比例下限（0-1）"
                              "若为1，则代表instance的长/宽此时与背景长/宽相等（以先到达100%者为准")
     parser.add_argument("--no_ins_mask", type=bool, default=False,
@@ -55,7 +55,7 @@ def get_parser():
                         default=['car', 'truck', 'tank', 'armored_car', 'radar', 'artillery', 'boat', 'airplane'])
     parser.add_argument("--motion_mode", type=bool, default=False,
                         help="是否生成有规律运动的目标，只允许有一个物体")
-    parser.add_argument("--controlnet_gen_data", type=bool, default=True,
+    parser.add_argument("--controlnet_gen_data", type=bool, default=False,
                         help="controlnet生成数据时，文件夹格式有所不同，mask映射关系也会改变")
     args = parser.parse_args()
     return args
