@@ -12,11 +12,11 @@ import warnings
 
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--project_folder", type=str, default="/home/npz/workspace/copy_paste_tool/example",
+    parser.add_argument("--project_folder", type=str, default="/home/npz/workspace/copy_paste_tool/365_data/0430",
                         help="存放所有素材的文件夹路径。具体文件夹格式见主程序")
     parser.add_argument("--ins_category", type=list, default=None,
                         help="需要粘贴的目标图像的类别。要求将不同类目标按类存放在instances文件夹下。详见主程序")
-    parser.add_argument("--gen_num", type=int, default=10,
+    parser.add_argument("--gen_num", type=int, default=100,
                         help="如果大于0，则模式变为强制生成多少张合成图片，背景会反复随机选取")
     parser.add_argument("--min_num_ins_per_bg", type=int, default=1, help="设定每张图片上放置的最小目标个数")
     parser.add_argument("--max_num_ins_per_bg", type=int, default=7, help="设定每张图片上放置的最大目标个数")
@@ -52,10 +52,10 @@ def get_parser():
     parser.add_argument("--resample_method", default="LANCZOS", choices=['LANCZOS', 'BILINEAR', 'BICUBIC'],
                         help="图像缩放时的插值方法")
     parser.add_argument("--yolo_class_list", type=list,
-                        default=['car', 'truck', 'tank', 'armored_car', 'radar', 'artillery', 'boat', 'airplane'])
+                        default=['car', 'truck', 'tank', 'armored_car', 'radar', 'artillery'])
     parser.add_argument("--motion_mode", type=bool, default=False,
                         help="是否生成有规律运动的目标，只允许有一个物体")
-    parser.add_argument("--controlnet_gen_data", type=bool, default=False,
+    parser.add_argument("--controlnet_gen_data", type=bool, default=True,
                         help="controlnet生成数据时，文件夹格式有所不同，mask映射关系也会改变")
     args = parser.parse_args()
     return args
@@ -106,9 +106,12 @@ if __name__ == '__main__':
         ins_path_list = []
         for ins_folder in ins_folder_list:
             for ctrl_image_folder in os.listdir(ins_folder):
+                if "pipe_config" in ctrl_image_folder:  # 排除pipe_config文件夹
+                    continue
                 for file in os.listdir(os.path.join(ins_folder, ctrl_image_folder)):
-                    if "canny" not in file:  # 排除canny.jpg等文件
-                        ins_path_list.append(os.path.join(ins_folder, ctrl_image_folder, file))
+                    if "canny" in file:  # 排除canny.jpg等文件
+                        continue
+                    ins_path_list.append(os.path.join(ins_folder, ctrl_image_folder, file))
         ins_num = len(ins_path_list)
     else:
         ins_path_list = []
@@ -279,7 +282,10 @@ if __name__ == '__main__':
                         bg_img, bbox = paste_img_or_mask(scaled_ins_img, bg_img, (x, y), scaled_ins_mask_img)
                         if not args.no_ins_mask:
                             final_mask_img, _ = paste_img_or_mask(scaled_ins_mask_img, final_mask_img, (x, y))
-                        ins_class_name = os.path.basename(os.path.dirname(os.path.dirname(ins_path)))
+                        if args.controlnet_gen_data:
+                            ins_class_name = os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(ins_path))))
+                        else:
+                            ins_class_name = os.path.basename(os.path.dirname(os.path.dirname(ins_path)))
                         if ins_class_name in bg_data_dict['instances'].keys():
                             bg_data_dict['instances'][ins_class_name].append(bbox)
                         else:
